@@ -31,7 +31,7 @@ import fiji.Debug;
 public class Main {
 
 	public static void main(final String... args) {
-		Debug.run("Cell Counter", "");
+		Debug.run("Cell Counter (Morphometry)", "");
 	}
 
 }

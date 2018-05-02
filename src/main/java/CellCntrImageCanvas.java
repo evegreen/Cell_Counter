@@ -52,7 +52,7 @@ public class CellCntrImageCanvas extends ImageCanvas {
 
 	private Vector<CellCntrMarkerVector> typeVector;
 	private CellCntrMarkerVector currentMarkerVector;
-	private final CellCounter cc;
+	private final CellCounterMorph cc;
 	private final ImagePlus img;
 	private boolean delmode = false;
 	private boolean showNumbers = true;
@@ -61,7 +61,7 @@ public class CellCntrImageCanvas extends ImageCanvas {
 
 	/** Creates a new instance of CellCntrImageCanvas */
 	public CellCntrImageCanvas(final ImagePlus img,
-		final Vector<CellCntrMarkerVector> typeVector, final CellCounter cc,
+		final Vector<CellCntrMarkerVector> typeVector, final CellCounterMorph cc,
 		final Vector<Roi> displayList)
 	{
 		super(img);
@@ -87,6 +87,9 @@ public class CellCntrImageCanvas extends ImageCanvas {
 
 		final int x = super.offScreenX(e.getX());
 		final int y = super.offScreenY(e.getY());
+
+		// TODO: change x and y right here
+
 		if (!delmode) {
 			final CellCntrMarker m = new CellCntrMarker(x, y, img.getCurrentSlice());
 			currentMarkerVector.addMarker(m);

@@ -28,12 +28,12 @@ import ij.plugin.frame.PlugInFrame;
 /**
  * @author Kurt De Vos
  */
-public class Cell_Counter extends PlugInFrame {
+public class Cell_Counter_Morph extends PlugInFrame {
 
 	/** Creates a new instance of Cell_Counter */
-	public Cell_Counter() {
-		super("Cell Counter");
-		new CellCounter();
+	public Cell_Counter_Morph() {
+		super("Cell Counter (Morphometry)");
+		new CellCounterMorph();
 	}
 
 	@Override

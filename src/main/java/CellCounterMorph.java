@@ -67,21 +67,20 @@ import org.scijava.command.CommandService;
  *
  * @author Kurt De Vos
  */
-public class CellCounter extends JFrame implements ActionListener, ItemListener
-{
+public class CellCounterMorph extends JFrame implements ActionListener, ItemListener {
 
-	private static final String ADD = "Add";
-	private static final String REMOVE = "Remove";
-	private static final String RENAME = "Rename";
+	private static final String ADD = "Add Type";
+	private static final String REMOVE = "Remove Type";
+	private static final String RENAME = "Rename Type";
 	private static final String INITIALIZE = "Initialize";
 	private static final String OPTIONS = "Options";
 	private static final String RESULTS = "Results";
-	private static final String DELETE = "Delete";
-	private static final String DELMODE = "Delete Mode";
+	private static final String DELETE = "Delete Last Marker";
+	private static final String DELMODE = "Delete Closest Mode";
 	private static final String KEEPORIGINAL = "Keep Original";
 	private static final String SHOWNUMBERS = "Show Numbers";
 	private static final String SHOWALL = "Show All";
-	private static final String RESET = "Reset";
+	private static final String RESET = "Reset All Counters";
 	private static final String EXPORTMARKERS = "Save Markers";
 	private static final String LOADMARKERS = "Load Markers";
 	private static final String EXPORTIMG = "Export Image";
@@ -128,10 +127,10 @@ public class CellCounter extends JFrame implements ActionListener, ItemListener
 
 	private GridLayout dynGrid;
 
-	static CellCounter instance;
+	static CellCounterMorph instance;
 
-	public CellCounter() {
-		super("Cell Counter");
+	public CellCounterMorph() {
+		super("Cell Counter (Morphometry)");
 		setResizable(false);
 		typeVector = new Vector<CellCntrMarkerVector>();
 		txtFieldVector = new Vector<JTextField>();
