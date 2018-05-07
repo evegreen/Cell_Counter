@@ -58,6 +58,7 @@ public class CellCntrImageCanvas extends ImageCanvas {
 	private boolean showNumbers = true;
 	private boolean showAll = false;
 	private final Font font = new Font("SansSerif", Font.PLAIN, 10);
+	private final MagnetChecker magnetChecker = new MagnetChecker();
 
 	/** Creates a new instance of CellCntrImageCanvas */
 	public CellCntrImageCanvas(final ImagePlus img,
@@ -92,14 +93,16 @@ public class CellCntrImageCanvas extends ImageCanvas {
 
 		final int x = super.offScreenX(e.getX());
 		final int y = super.offScreenY(e.getY());
+		final int magnetX = magnetChecker.getAjacent(MagnetGrid.xScalePoints, x);
+		final int magnetY = magnetChecker.getAjacent(MagnetGrid.yScalePoints, y);
 
 		if (!delmode) {
-			final CellCntrMarker m = new CellCntrMarker(x, y, img.getCurrentSlice());
+			final CellCntrMarker m = new CellCntrMarker(magnetX, magnetY, img.getCurrentSlice());
 			currentMarkerVector.addMarker(m);
 		}
 		else {
 			final CellCntrMarker m =
-				currentMarkerVector.getMarkerFromPosition(new Point(x, y), img
+				currentMarkerVector.getMarkerFromPosition(new Point(magnetX, magnetY), img
 					.getCurrentSlice());
 			currentMarkerVector.remove(m);
 		}

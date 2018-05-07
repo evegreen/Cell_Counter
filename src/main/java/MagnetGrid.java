@@ -42,7 +42,10 @@ public class MagnetGrid implements PlugIn, DialogListener {
 	private boolean randomOffset;
 	private boolean centered;
 	private Checkbox centerCheckbox, randomCheckbox;
-	public static List<MagnetPoint> magnetPoints;
+
+	public static List<int> xScalePoints;
+	public static List<int> yScalePoints;
+	public static List<List<boolean>> magnetPointsState;
 
 	public void run(String arg) {
 		imp = IJ.getImage();
@@ -80,18 +83,36 @@ public class MagnetGrid implements PlugIn, DialogListener {
 		GeneralPath path = new GeneralPath();
 		double arm  = crossSize*tileWidth;
 		if (arm<3) arm=3;
-		magnetPoints = new ArrayList<MagnetPoint>();
+
+		xScalePoints = new ArrayList<int>();
+		yScalePoints = new ArrayList<int>();
+
 		for(int h=0; h<linesV; h++) {
+			double x = xstart+h*tileWidth;
+			xScalePoints.add(x);
 			for(int v=0; v<linesH; v++) {
-				double x = xstart+h*tileWidth;
 				double y = ystart+v*tileHeight;
-				magnetPoints.add(new MagnetPoint(x, y));
+				if (xScalePoints.size() == 1) {
+					yScalePoints.add(y);
+				}
+				
 				path.moveTo(x-arm, y);
 				path.lineTo(x+arm, y);
 				path.moveTo(x, y-arm);
 				path.lineTo(x, y+arm);
 			}
 		}
+
+		magnetPointsState = new ArrayList<ArrayList<boolean>>();
+		for (int i = 0; i < xScalePoints.size(); i++) {
+			ArrayList<boolean> yList = new ArrayList<boolean>();
+			for (int j = 0; j < xScalePoints.size(); j++) {
+				yList.add(false);
+			}
+
+			magnetPointsState.add(yList);
+		}
+
 		drawGrid(path);
 	}
 
