@@ -43,9 +43,9 @@ public class MagnetGrid implements PlugIn, DialogListener {
 	private boolean centered;
 	private Checkbox centerCheckbox, randomCheckbox;
 
-	public static List<int> xScalePoints;
-	public static List<int> yScalePoints;
-	public static List<List<boolean>> magnetPointsState;
+	public static List<Double> xScalePoints;
+	public static List<Double> yScalePoints;
+	public static ArrayList<ArrayList<Boolean>> magnetPointsState;
 
 	public void run(String arg) {
 		imp = IJ.getImage();
@@ -56,7 +56,7 @@ public class MagnetGrid implements PlugIn, DialogListener {
 		if (showDialog() && !isMacro)
 			saveSettings();
 	}
-		
+
 	// http://stackoverflow.com/questions/30654203/how-to-create-a-circle-using-generalpath-and-apache-poi
 	private void drawCircles(double size) {
 		double R  = size*tileWidth;
@@ -84,8 +84,8 @@ public class MagnetGrid implements PlugIn, DialogListener {
 		double arm  = crossSize*tileWidth;
 		if (arm<3) arm=3;
 
-		xScalePoints = new ArrayList<int>();
-		yScalePoints = new ArrayList<int>();
+		xScalePoints = new ArrayList<>();
+		yScalePoints = new ArrayList<>();
 
 		for(int h=0; h<linesV; h++) {
 			double x = xstart+h*tileWidth;
@@ -95,7 +95,7 @@ public class MagnetGrid implements PlugIn, DialogListener {
 				if (xScalePoints.size() == 1) {
 					yScalePoints.add(y);
 				}
-				
+
 				path.moveTo(x-arm, y);
 				path.lineTo(x+arm, y);
 				path.moveTo(x, y-arm);
@@ -103,9 +103,9 @@ public class MagnetGrid implements PlugIn, DialogListener {
 			}
 		}
 
-		magnetPointsState = new ArrayList<ArrayList<boolean>>();
+		magnetPointsState = new ArrayList<>();
 		for (int i = 0; i < xScalePoints.size(); i++) {
-			ArrayList<boolean> yList = new ArrayList<boolean>();
+			ArrayList<Boolean> yList = new ArrayList<>();
 			for (int j = 0; j < xScalePoints.size(); j++) {
 				yList.add(false);
 			}
@@ -266,7 +266,7 @@ public class MagnetGrid implements PlugIn, DialogListener {
 			xstart = (int)(tileWidth/2.0+0.5);
 			ystart = (int)(tileHeight/2.0+0.5);
 		}
-		linesV = (int)((width-xstart)/tileWidth)+1; 
+		linesV = (int)((width-xstart)/tileWidth)+1;
 		linesH = (int)((height-ystart)/tileHeight)+1;
 		if (gd.invalidNumber())
 			return true;
@@ -289,7 +289,7 @@ public class MagnetGrid implements PlugIn, DialogListener {
 		else
 			drawGrid(null);
 	}
-	
+
 	private void getSettings() {
 		String prefs = Prefs.get(OPTIONS, "Lines,Cyan,-");
 		//IJ.log("options: "+prefs);
@@ -307,7 +307,7 @@ public class MagnetGrid implements PlugIn, DialogListener {
 				randomOffset = false;
 		}
 	}
-	
+
 	private void saveSettings() {
 		String options = type+","+color+",";
 		String options2 = (bold?"bold ":"")+(centered?"centered ":"")+(randomOffset?"random ":"");

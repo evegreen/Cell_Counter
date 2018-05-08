@@ -40,6 +40,7 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 
@@ -58,7 +59,9 @@ public class CellCntrImageCanvas extends ImageCanvas {
 	private boolean showNumbers = true;
 	private boolean showAll = false;
 	private final Font font = new Font("SansSerif", Font.PLAIN, 10);
+
 	private final MagnetChecker magnetChecker = new MagnetChecker();
+	private ScalePointsMapper scalePointsMapper;
 
 	/** Creates a new instance of CellCntrImageCanvas */
 	public CellCntrImageCanvas(final ImagePlus img,
@@ -70,6 +73,8 @@ public class CellCntrImageCanvas extends ImageCanvas {
 		this.typeVector = typeVector;
 		this.cc = cc;
 		if (displayList != null) this.setDisplayList(displayList);
+
+		this.scalePointsMapper = new ScalePointsMapper(this);
 	}
 
 	@Override
@@ -86,24 +91,28 @@ public class CellCntrImageCanvas extends ImageCanvas {
 			return;
 		}
 
-		if (MagnetGrid.magnetPoints == null) {
+		if (MagnetGrid.magnetPointsState == null) {
 			IJ.error("You need to create magnet grid first");
 			return;
 		}
 
 		final int x = super.offScreenX(e.getX());
 		final int y = super.offScreenY(e.getY());
-		final int magnetX = magnetChecker.getAjacent(MagnetGrid.xScalePoints, x);
-		final int magnetY = magnetChecker.getAjacent(MagnetGrid.yScalePoints, y);
+
+		// TODO: need test with move app on screen
+		List<Integer> offscreenXScalepoints = scalePointsMapper.getOffscreenXCoordsList(MagnetGrid.xScalePoints);
+		List<Integer> offscreenYScalepoints = scalePointsMapper.getOffscreenYCoordsList(MagnetGrid.yScalePoints);
+ 		final int magnetX = magnetChecker.getAjacent(offscreenXScalepoints, x);
+		final int magnetY = magnetChecker.getAjacent(offscreenYScalepoints, y);
 
 		if (!delmode) {
 			final CellCntrMarker m = new CellCntrMarker(magnetX, magnetY, img.getCurrentSlice());
 			currentMarkerVector.addMarker(m);
-		}
-		else {
-			final CellCntrMarker m =
-				currentMarkerVector.getMarkerFromPosition(new Point(magnetX, magnetY), img
-					.getCurrentSlice());
+		} else {
+			final CellCntrMarker m = currentMarkerVector.getMarkerFromPosition(
+					new Point(magnetX, magnetY),
+					img.getCurrentSlice()
+			);
 			currentMarkerVector.remove(m);
 		}
 		repaint();
