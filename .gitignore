@@ -5,3 +5,8 @@
 
 # Maven #
 /target/
+
+# Intellij Idea #
+.idea/
+*.iml
+
