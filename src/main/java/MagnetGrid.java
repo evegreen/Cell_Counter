@@ -43,8 +43,8 @@ public class MagnetGrid implements PlugIn, DialogListener {
 	private boolean centered;
 	private Checkbox centerCheckbox, randomCheckbox;
 
-	public static List<Double> xScalePoints;
-	public static List<Double> yScalePoints;
+	public static List<Integer> xScalePoints;
+	public static List<Integer> yScalePoints;
 	public static ArrayList<ArrayList<Boolean>> magnetPointsState;
 
 	public void run(String arg) {
@@ -89,11 +89,11 @@ public class MagnetGrid implements PlugIn, DialogListener {
 
 		for(int h=0; h<linesV; h++) {
 			double x = xstart+h*tileWidth;
-			xScalePoints.add(x);
+			xScalePoints.add((int)x);
 			for(int v=0; v<linesH; v++) {
 				double y = ystart+v*tileHeight;
 				if (xScalePoints.size() == 1) {
-					yScalePoints.add(y);
+					yScalePoints.add((int)y);
 				}
 
 				path.moveTo(x-arm, y);

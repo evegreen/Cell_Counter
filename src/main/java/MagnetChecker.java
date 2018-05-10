@@ -7,8 +7,8 @@ public class MagnetChecker {
     int lowIndex = 0;
     for (int i = 0; i < scalePointsList.size(); i++) {
       int point = scalePointsList.get(i);
-      if (pressedCoord > point) {
-        lowIndex = i;
+      if (point > pressedCoord) {
+        lowIndex = i - 1;
         break;
       }
     }
