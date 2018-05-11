@@ -104,7 +104,7 @@ public class MagnetGrid implements PlugIn, DialogListener {
 		}
 
 		magnetPointsState = new ArrayList<>();
-		for (int i = 0; i < xScalePoints.size(); i++) {
+		for (int i = 0; i < yScalePoints.size(); i++) {
 			ArrayList<Boolean> yList = new ArrayList<>();
 			for (int j = 0; j < xScalePoints.size(); j++) {
 				yList.add(false);

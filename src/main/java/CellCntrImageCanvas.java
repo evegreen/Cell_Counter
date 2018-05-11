@@ -40,7 +40,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.util.List;
 import java.util.ListIterator;
 import java.util.Vector;
 
@@ -76,9 +75,11 @@ public class CellCntrImageCanvas extends ImageCanvas {
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		if (IJ.spaceBarDown() || Toolbar.getToolId() == Toolbar.MAGNIFIER ||
-			Toolbar.getToolId() == Toolbar.HAND)
-		{
+		if (
+			IJ.spaceBarDown() ||
+			Toolbar.getToolId() == Toolbar.MAGNIFIER ||
+			Toolbar.getToolId() == Toolbar.HAND
+		) {
 			super.mousePressed(e);
 			return;
 		}
@@ -93,24 +94,7 @@ public class CellCntrImageCanvas extends ImageCanvas {
 			return;
 		}
 
-		final int x = super.offScreenX(e.getX());
-		final int y = super.offScreenY(e.getY());
-
- 		final int magnetX = magnetChecker.getAjacent(MagnetGrid.xScalePoints, x);
-		final int magnetY = magnetChecker.getAjacent(MagnetGrid.yScalePoints, y);
-
-		if (!delmode) {
-			final CellCntrMarker m = new CellCntrMarker(magnetX, magnetY, img.getCurrentSlice());
-			currentMarkerVector.addMarker(m);
-		} else {
-			final CellCntrMarker m = currentMarkerVector.getMarkerFromPosition(
-					new Point(magnetX, magnetY),
-					img.getCurrentSlice()
-			);
-			currentMarkerVector.remove(m);
-		}
-		repaint();
-		cc.populateTxtFields();
+		handleMarkTry(e);
 	}
 
 	@Override
@@ -131,14 +115,51 @@ public class CellCntrImageCanvas extends ImageCanvas {
 	@Override
 	public void mouseEntered(final MouseEvent e) {
 		super.mouseEntered(e);
-		if (!IJ.spaceBarDown() | Toolbar.getToolId() != Toolbar.MAGNIFIER |
-			Toolbar.getToolId() != Toolbar.HAND) setCursor(Cursor
-			.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		if (
+			!IJ.spaceBarDown() |
+			Toolbar.getToolId() != Toolbar.MAGNIFIER |
+			Toolbar.getToolId() != Toolbar.HAND
+		) {
+			setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		}
 	}
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
-		super.mouseDragged(e);
+		// TODO: need remove it ?
+		// super.mouseDragged(e);
+		handleMarkTry(e);
+	}
+
+	private void handleMarkTry(final MouseEvent event) {
+		final int x = super.offScreenX(event.getX());
+		final int y = super.offScreenY(event.getY());
+
+		int magnetXIndex = magnetChecker.getAjacent(MagnetGrid.xScalePoints, x);
+		int magnetYIndex = magnetChecker.getAjacent(MagnetGrid.yScalePoints, y);
+		boolean terminationState = !delmode;
+		// validate already marked (or deleted) for terminate event handling
+		if (MagnetGrid.magnetPointsState.get(magnetYIndex).get(magnetXIndex) == terminationState) {
+			return;
+		}
+
+		final int magnetX = MagnetGrid.xScalePoints.get(magnetXIndex);
+		final int magnetY = MagnetGrid.yScalePoints.get(magnetYIndex);
+
+		if (!delmode) {
+			final CellCntrMarker m = new CellCntrMarker(magnetX, magnetY, img.getCurrentSlice());
+			currentMarkerVector.addMarker(m);
+			MagnetGrid.magnetPointsState.get(magnetYIndex).set(magnetXIndex, true);
+		} else {
+			final CellCntrMarker m = currentMarkerVector.getMarkerFromPosition(
+					new Point(magnetX, magnetY),
+					img.getCurrentSlice()
+			);
+			currentMarkerVector.remove(m);
+			MagnetGrid.magnetPointsState.get(magnetYIndex).set(magnetXIndex, false);
+		}
+		repaint();
+		cc.populateTxtFields();
 	}
 
 	@Override
