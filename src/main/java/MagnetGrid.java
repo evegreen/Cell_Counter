@@ -45,7 +45,7 @@ public class MagnetGrid implements PlugIn, DialogListener {
 
 	public static List<Integer> xScalePoints;
 	public static List<Integer> yScalePoints;
-	public static ArrayList<ArrayList<Boolean>> magnetPointsState;
+	public static ArrayList<ArrayList<Tuple<CellCntrMarkerVector, CellCntrMarker>>> magnetPointsState;
 
 	public void run(String arg) {
 		imp = IJ.getImage();
@@ -105,15 +105,27 @@ public class MagnetGrid implements PlugIn, DialogListener {
 
 		magnetPointsState = new ArrayList<>();
 		for (int i = 0; i < yScalePoints.size(); i++) {
-			ArrayList<Boolean> yList = new ArrayList<>();
+			ArrayList<Tuple<CellCntrMarkerVector, CellCntrMarker>> yList = new ArrayList<>();
 			for (int j = 0; j < xScalePoints.size(); j++) {
-				yList.add(false);
+				yList.add(null);
 			}
 
 			magnetPointsState.add(yList);
 		}
 
 		drawGrid(path);
+	}
+
+	public static void resetMagnetPointsState() {
+		if (magnetPointsState == null) {
+			return;
+		}
+
+		for (int i = 0; i < yScalePoints.size(); i++) {
+			for (int j = 0; j < xScalePoints.size(); j++) {
+				magnetPointsState.get(i).set(j, null);
+			}
+		}
 	}
 
 	private void drawLines() {

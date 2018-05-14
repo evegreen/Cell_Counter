@@ -76,7 +76,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 	private static final String OPTIONS = "Options";
 	private static final String RESULTS = "Results";
 	private static final String DELETE = "Delete Last Marker";
-	private static final String DELMODE = "Delete Closest Mode";
+	private static final String DELMODE = "Delete Mode";
 	private static final String KEEPORIGINAL = "Keep Original";
 	private static final String SHOWNUMBERS = "Show Numbers";
 	private static final String SHOWALL = "Show All";
@@ -706,6 +706,8 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			mv.clear();
 		}
 		if (ic != null) ic.repaint();
+
+		MagnetGrid.resetMagnetPointsState();
 	}
 
 	public void options() {

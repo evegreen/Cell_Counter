@@ -4,12 +4,21 @@ import java.util.List;
 
 public class MagnetChecker {
   public int getAjacent(List<Integer> scalePointsList, int pressedCoord) {
-    // TODO: test with corners of picture
     // TODO: test with random-moved crosses
     int lowIndex = 0;
+    // if right edge
+    if (scalePointsList.get(scalePointsList.size() - 1) <= pressedCoord) {
+        return scalePointsList.size() - 1;
+    }
+
     for (int i = 0; i < scalePointsList.size(); i++) {
-      int point = scalePointsList.get(i);
-      if (point > pressedCoord) {
+      int crossPoint = scalePointsList.get(i);
+      if (crossPoint > pressedCoord) {
+        // if left edge
+        if (i == 0) {
+          return 0;
+        }
+
         lowIndex = i - 1;
         break;
       }

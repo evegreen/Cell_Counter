@@ -37,7 +37,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.ListIterator;
@@ -126,21 +125,27 @@ public class CellCntrImageCanvas extends ImageCanvas {
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
-		// TODO: need remove it ?
-		// super.mouseDragged(e);
 		handleMarkTry(e);
 	}
 
+	// TODO: implement override mode:
+	// need replace when click on already marked point, but another type
 	private void handleMarkTry(final MouseEvent event) {
 		final int x = super.offScreenX(event.getX());
 		final int y = super.offScreenY(event.getY());
 
 		int magnetXIndex = magnetChecker.getAjacent(MagnetGrid.xScalePoints, x);
 		int magnetYIndex = magnetChecker.getAjacent(MagnetGrid.yScalePoints, y);
-		boolean terminationState = !delmode;
+
 		// validate already marked (or deleted) for terminate event handling
-		if (MagnetGrid.magnetPointsState.get(magnetYIndex).get(magnetXIndex) == terminationState) {
-			return;
+		if (!delmode) {
+			if (MagnetGrid.magnetPointsState.get(magnetYIndex).get(magnetXIndex) != null) {
+				return;
+			}
+		} else {
+			if (MagnetGrid.magnetPointsState.get(magnetYIndex).get(magnetXIndex) == null) {
+				return;
+			}
 		}
 
 		final int magnetX = MagnetGrid.xScalePoints.get(magnetXIndex);
@@ -149,14 +154,20 @@ public class CellCntrImageCanvas extends ImageCanvas {
 		if (!delmode) {
 			final CellCntrMarker m = new CellCntrMarker(magnetX, magnetY, img.getCurrentSlice());
 			currentMarkerVector.addMarker(m);
-			MagnetGrid.magnetPointsState.get(magnetYIndex).set(magnetXIndex, true);
-		} else {
-			final CellCntrMarker m = currentMarkerVector.getMarkerFromPosition(
-					new Point(magnetX, magnetY),
-					img.getCurrentSlice()
+			MagnetGrid.magnetPointsState.get(magnetYIndex).set(
+					magnetXIndex,
+					new Tuple<>(currentMarkerVector, m)
 			);
-			currentMarkerVector.remove(m);
-			MagnetGrid.magnetPointsState.get(magnetYIndex).set(magnetXIndex, false);
+		} else {
+			// TODO: need disable drag'n'drop in delete mode ?
+
+			// delete mode works independently from counter types
+			Tuple<CellCntrMarkerVector, CellCntrMarker> point = MagnetGrid.magnetPointsState
+				.get(magnetYIndex).get(magnetXIndex);
+			CellCntrMarkerVector typeVectorContainer = point.x;
+			CellCntrMarker marker = point.y;
+			typeVectorContainer.remove(marker);
+			MagnetGrid.magnetPointsState.get(magnetYIndex).set(magnetXIndex, null);
 		}
 		repaint();
 		cc.populateTxtFields();
@@ -202,6 +213,13 @@ public class CellCntrImageCanvas extends ImageCanvas {
 	}
 
 	public void removeLastMarker() {
+		CellCntrMarker lastMarker = currentMarkerVector.getMarker(currentMarkerVector.size() - 1);
+		final int x = lastMarker.getX();
+		final int y = lastMarker.getY();
+		int magnetXIndex = magnetChecker.getAjacent(MagnetGrid.xScalePoints, x);
+		int magnetYIndex = magnetChecker.getAjacent(MagnetGrid.yScalePoints, y);
+		MagnetGrid.magnetPointsState.get(magnetYIndex).set(magnetXIndex, null);
+
 		currentMarkerVector.removeLastMarker();
 		repaint();
 		cc.populateTxtFields();
