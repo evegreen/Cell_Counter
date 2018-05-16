@@ -726,6 +726,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			final String str = button.getText(); // System.out.println(str);
 			labels = labels.concat(str + "\t");
 		}
+		labels = labels.concat("Background" + "\t");
 		labels = labels.concat("\tC-pos\tZ-pos\tT-pos\t");						// add new columns containing C,Z,T positions
 		
 		IJ.setColumnHeadings(labels);
@@ -771,6 +772,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			final int count = mv.size();
 			results = results.concat(count + "\t");
 		}
+		results = results.concat(MagnetGrid.evalBackgroundCount() + "\t");
 		IJ.write(results);
 	}
 

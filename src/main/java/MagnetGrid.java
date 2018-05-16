@@ -121,11 +121,25 @@ public class MagnetGrid implements PlugIn, DialogListener {
 			return;
 		}
 
-		for (int i = 0; i < yScalePoints.size(); i++) {
-			for (int j = 0; j < xScalePoints.size(); j++) {
-				magnetPointsState.get(i).set(j, null);
+		for (int yIndex = 0; yIndex < yScalePoints.size(); yIndex++) {
+			for (int xIndex = 0; xIndex < xScalePoints.size(); xIndex++) {
+				magnetPointsState.get(yIndex).set(xIndex, null);
 			}
 		}
+	}
+
+	public static int evalBackgroundCount() {
+		int count = 0;
+		for (int yIndex = 0; yIndex < yScalePoints.size(); yIndex++) {
+			for (int xIndex = 0; xIndex < xScalePoints.size(); xIndex++) {
+				Tuple<CellCntrMarkerVector, CellCntrMarker> point =
+						magnetPointsState.get(yIndex).get(xIndex);
+				if (point == null) {
+					count++;
+				}
+			}
+		}
+		return count;
 	}
 
 	private void drawLines() {
