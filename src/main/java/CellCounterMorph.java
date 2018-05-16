@@ -76,7 +76,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 	private static final String OPTIONS = "Options";
 	private static final String RESULTS = "Results";
 	private static final String DELETE = "Delete Last Marker";
-	private static final String DELMODE = "Delete Closest Mode";
+	private static final String DELMODE = "Delete Mode";
 	private static final String KEEPORIGINAL = "Keep Original";
 	private static final String SHOWNUMBERS = "Show Numbers";
 	private static final String SHOWALL = "Show All";
@@ -120,7 +120,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 
 	private boolean keepOriginal = false;
 
-	private CellCntrImageCanvas ic;
+	private CellCntrImageCanvasMorph ic;
 
 	private ImagePlus img;
 	private ImagePlus counterImg;
@@ -507,7 +507,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			@SuppressWarnings("unchecked")
 			final Vector<Roi> displayList =
 				v139t ? img.getCanvas().getDisplayList() : null;
-			ic = new CellCntrImageCanvas(counterImg, typeVector, this, displayList);
+			ic = new CellCntrImageCanvasMorph(counterImg, typeVector, this, displayList);
 			new ImageWindow(counterImg, ic);
 		}
 		else if (img.getStackSize() > 1) {
@@ -533,7 +533,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			@SuppressWarnings("unchecked")
 			final Vector<Roi> displayList =
 				v139t ? img.getCanvas().getDisplayList() : null;
-			ic = new CellCntrImageCanvas(counterImg, typeVector, this, displayList);
+			ic = new CellCntrImageCanvasMorph(counterImg, typeVector, this, displayList);
 			new StackWindow(counterImg, ic);
 		}
 		
@@ -640,9 +640,15 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			exportMarkers();
 		}
 		else if (command.equals(LOADMARKERS)) {
-			if (ic == null) initializeImage();
-			loadMarkers();
-			validateLayout();
+
+			// TODO: we can load markers, but magnetPointsState will not initialize
+			// so this option is not supported right now
+			IJ.error("Load markers feature is not supported in morphometry plugin right now");
+			return;
+
+//			if (ic == null) initializeImage();
+//			loadMarkers();
+//			validateLayout();
 		}
 		else if (command.equals(EXPORTIMG)) {
 			ic.imageWithMarkers().show();
@@ -706,6 +712,8 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			mv.clear();
 		}
 		if (ic != null) ic.repaint();
+
+		MagnetGrid.resetMagnetPointsState();
 	}
 
 	public void options() {
@@ -724,6 +732,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			final String str = button.getText(); // System.out.println(str);
 			labels = labels.concat(str + "\t");
 		}
+		labels = labels.concat("Background" + "\t");
 		labels = labels.concat("\tC-pos\tZ-pos\tT-pos\t");						// add new columns containing C,Z,T positions
 		
 		IJ.setColumnHeadings(labels);
@@ -769,6 +778,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			final int count = mv.size();
 			results = results.concat(count + "\t");
 		}
+		results = results.concat(MagnetGrid.evalBackgroundCount() + "\t");
 		IJ.write(results);
 	}
 

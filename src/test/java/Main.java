@@ -24,7 +24,7 @@
 import fiji.Debug;
 
 /**
- * Tests the {@link Cell_Counter} plugin.
+ * Tests the {@link Cell_Counter_Morph} plugin.
  * 
  * @author Curtis Rueden
  */

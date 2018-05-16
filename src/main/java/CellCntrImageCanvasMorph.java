@@ -9,12 +9,12 @@
  * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
@@ -37,7 +37,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.util.ListIterator;
@@ -48,7 +47,7 @@ import java.util.Vector;
  *
  * @author Kurt De Vos
  */
-public class CellCntrImageCanvas extends ImageCanvas {
+public class CellCntrImageCanvasMorph extends ImageCanvas {
 
 	private Vector<CellCntrMarkerVector> typeVector;
 	private CellCntrMarkerVector currentMarkerVector;
@@ -59,11 +58,13 @@ public class CellCntrImageCanvas extends ImageCanvas {
 	private boolean showAll = false;
 	private final Font font = new Font("SansSerif", Font.PLAIN, 10);
 
-	/** Creates a new instance of CellCntrImageCanvas */
-	public CellCntrImageCanvas(final ImagePlus img,
+	private final MagnetChecker magnetChecker = new MagnetChecker();
+
+	/** Creates a new instance of CellCntrImageCanvasMorph */
+	public CellCntrImageCanvasMorph(final ImagePlus img,
 		final Vector<CellCntrMarkerVector> typeVector, final CellCounterMorph cc,
-		final Vector<Roi> displayList)
-	{
+		final Vector<Roi> displayList
+	) {
 		super(img);
 		this.img = img;
 		this.typeVector = typeVector;
@@ -73,9 +74,11 @@ public class CellCntrImageCanvas extends ImageCanvas {
 
 	@Override
 	public void mousePressed(final MouseEvent e) {
-		if (IJ.spaceBarDown() || Toolbar.getToolId() == Toolbar.MAGNIFIER ||
-			Toolbar.getToolId() == Toolbar.HAND)
-		{
+		if (
+			IJ.spaceBarDown() ||
+			Toolbar.getToolId() == Toolbar.MAGNIFIER ||
+			Toolbar.getToolId() == Toolbar.HAND
+		) {
 			super.mousePressed(e);
 			return;
 		}
@@ -85,23 +88,12 @@ public class CellCntrImageCanvas extends ImageCanvas {
 			return;
 		}
 
-		final int x = super.offScreenX(e.getX());
-		final int y = super.offScreenY(e.getY());
-
-		// TODO: change x and y right here
-
-		if (!delmode) {
-			final CellCntrMarker m = new CellCntrMarker(x, y, img.getCurrentSlice());
-			currentMarkerVector.addMarker(m);
+		if (MagnetGrid.magnetPointsState == null) {
+			IJ.error("You need to create magnet grid first");
+			return;
 		}
-		else {
-			final CellCntrMarker m =
-				currentMarkerVector.getMarkerFromPosition(new Point(x, y), img
-					.getCurrentSlice());
-			currentMarkerVector.remove(m);
-		}
-		repaint();
-		cc.populateTxtFields();
+
+		handleMarkTry(e);
 	}
 
 	@Override
@@ -122,14 +114,63 @@ public class CellCntrImageCanvas extends ImageCanvas {
 	@Override
 	public void mouseEntered(final MouseEvent e) {
 		super.mouseEntered(e);
-		if (!IJ.spaceBarDown() | Toolbar.getToolId() != Toolbar.MAGNIFIER |
-			Toolbar.getToolId() != Toolbar.HAND) setCursor(Cursor
-			.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		if (
+			!IJ.spaceBarDown() |
+			Toolbar.getToolId() != Toolbar.MAGNIFIER |
+			Toolbar.getToolId() != Toolbar.HAND
+		) {
+			setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+		}
 	}
 
 	@Override
 	public void mouseDragged(final MouseEvent e) {
-		super.mouseDragged(e);
+		handleMarkTry(e);
+	}
+
+	// TODO: implement override mode:
+	// need replace when click on already marked point, but another type
+	private void handleMarkTry(final MouseEvent event) {
+		final int x = super.offScreenX(event.getX());
+		final int y = super.offScreenY(event.getY());
+
+		int magnetXIndex = magnetChecker.getAjacent(MagnetGrid.xScalePoints, x);
+		int magnetYIndex = magnetChecker.getAjacent(MagnetGrid.yScalePoints, y);
+
+		// validate already marked (or deleted) for terminate event handling
+		if (!delmode) {
+			if (MagnetGrid.magnetPointsState.get(magnetYIndex).get(magnetXIndex) != null) {
+				return;
+			}
+		} else {
+			if (MagnetGrid.magnetPointsState.get(magnetYIndex).get(magnetXIndex) == null) {
+				return;
+			}
+		}
+
+		final int magnetX = MagnetGrid.xScalePoints.get(magnetXIndex);
+		final int magnetY = MagnetGrid.yScalePoints.get(magnetYIndex);
+
+		if (!delmode) {
+			final CellCntrMarker m = new CellCntrMarker(magnetX, magnetY, img.getCurrentSlice());
+			currentMarkerVector.addMarker(m);
+			MagnetGrid.magnetPointsState.get(magnetYIndex).set(
+					magnetXIndex,
+					new Tuple<>(currentMarkerVector, m)
+			);
+		} else {
+			// TODO: need disable drag'n'drop in delete mode ?
+
+			// delete mode works independently from counter types
+			Tuple<CellCntrMarkerVector, CellCntrMarker> point = MagnetGrid.magnetPointsState
+				.get(magnetYIndex).get(magnetXIndex);
+			CellCntrMarkerVector typeVectorContainer = point.x;
+			CellCntrMarker marker = point.y;
+			typeVectorContainer.remove(marker);
+			MagnetGrid.magnetPointsState.get(magnetYIndex).set(magnetXIndex, null);
+		}
+		repaint();
+		cc.populateTxtFields();
 	}
 
 	@Override
@@ -172,6 +213,13 @@ public class CellCntrImageCanvas extends ImageCanvas {
 	}
 
 	public void removeLastMarker() {
+		CellCntrMarker lastMarker = currentMarkerVector.getMarker(currentMarkerVector.size() - 1);
+		final int x = lastMarker.getX();
+		final int y = lastMarker.getY();
+		int magnetXIndex = magnetChecker.getAjacent(MagnetGrid.xScalePoints, x);
+		int magnetYIndex = magnetChecker.getAjacent(MagnetGrid.yScalePoints, y);
+		MagnetGrid.magnetPointsState.get(magnetYIndex).set(magnetXIndex, null);
+
 		currentMarkerVector.removeLastMarker();
 		repaint();
 		cc.populateTxtFields();
@@ -228,16 +276,16 @@ public class CellCntrImageCanvas extends ImageCanvas {
 	}
 
 	public void measure() {
-		Calibration cal = img.getCalibration();	
+		Calibration cal = img.getCalibration();
 		String unit = cal.getUnit();
 		String columnHeadings = String.format("Type\tSlice\tX\tY\tValue\tC-pos\tZ-pos\tT-pos\tX(%s)\tY(%s)\tZ(%s)",unit,unit,unit);
 		IJ.setColumnHeadings(columnHeadings);
-		
-		
+
+
 		for (int i = 1; i <= img.getStackSize(); i++) {
 			img.setSlice(i);
 			final ImageProcessor ip = img.getProcessor();
-			
+
 			final ListIterator<CellCntrMarkerVector> it = typeVector.listIterator();
 			while (it.hasNext()) {
 				final CellCntrMarkerVector mv = it.next();
@@ -250,19 +298,19 @@ public class CellCntrImageCanvas extends ImageCanvas {
 						final int yM = m.getY();
 						final int zM = m.getZ();
 						final double value = ip.getPixelValue(xM, yM);
-						
+
 						int[] realPosArray = img.convertIndexToPosition(zM); // from the slice we get the array  [channel, slice, frame]
 						final int channel 	= realPosArray[0];
 						final int zPos		= realPosArray[1];
 						final int frame 	= realPosArray[2];
 						final double xMcal 	= xM * cal.pixelWidth ;
 						final double yMcal 	= yM * cal.pixelHeight;
-						final double zMcal 	= (zPos-1) * cal.pixelDepth; 		// zPos instead of zM , start at 1 while should start at 0.  
-						
+						final double zMcal 	= (zPos-1) * cal.pixelDepth; 		// zPos instead of zM , start at 1 while should start at 0.
+
 						String resultsRow = String.format("%d\t%d\t%d\t%d\t%f\t%d\t%d\t%d\t%.3f\t%.3f\t%.3f",typeID,zM,xM,yM,value,channel,zPos,frame,xMcal,yMcal,zMcal);
 						IJ.write(resultsRow);
 						//IJ.write(typeID + "\t" + zM + "\t" + xM + "\t" + yM + "\t" + value + "\t" + channel + "\t" + zPos + "\t" + frame + "\t" + xMcal + "\t" + yMcal + "\t" +zMcal);
-						
+
 					}
 				}
 			}
