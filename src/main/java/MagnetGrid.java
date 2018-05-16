@@ -22,8 +22,13 @@ public class MagnetGrid implements PlugIn, DialogListener {
 	private static final String GRID = "|GRID|";
 	private static double crossSize = 0.1;
 	private static String[] colors = {"Red","Green","Blue","Magenta","Cyan","Yellow","Orange","Black","White"};
-	private final static int LINES=0, HLINES=1, CROSSES=2, POINTS=3, CIRCLES=4, NONE=4;
-	private static String[] types = {"Lines","Horizontal Lines", "Crosses", "Points", "Circles", "None"};
+
+	// TODO: only crosses integrated with magnetPointsState now. Other was removed
+//	private final static int LINES=0, HLINES=1, CROSSES=2, POINTS=3, CIRCLES=4, NONE=4;
+//	private static String[] types = {"Lines","Horizontal Lines", "Crosses", "Points", "Circles", "None"};
+	private final static int CROSSES = 0, LINES = 0, POINTS = 0;
+	private static String[] types = {"Crosses"};
+
 	private Random random = new Random(System.currentTimeMillis());
 	private ImagePlus imp;
 	private double tileWidth, tileHeight;
@@ -302,16 +307,23 @@ public class MagnetGrid implements PlugIn, DialogListener {
 
 	private void drawGrid() {
 		//IJ.log(centered+" "+xstart+" "+ystart);
-		if (type.equals(types[LINES]))
-			drawLines();
-		else if (type.equals(types[HLINES]))
-			drawHorizontalLines();
-		else if (type.equals(types[CROSSES]))
+
+		// TODO: only crosses integrated with magnetPointsState now. Other was removed
+//		if (type.equals(types[LINES]))
+//			drawLines();
+//		else if (type.equals(types[HLINES]))
+//			drawHorizontalLines();
+//		else if (type.equals(types[CROSSES]))
+//			drawCrosses();
+//		else  if (type.equals(types[POINTS]))
+//			drawCircles(0.01);
+//		else  if (type.equals(types[CIRCLES]))
+//			drawCircles(0.1);
+//		else
+//			drawGrid(null);
+
+		if (type.equals(types[CROSSES]))
 			drawCrosses();
-		else  if (type.equals(types[POINTS]))
-			drawCircles(0.01);
-		else  if (type.equals(types[CIRCLES]))
-			drawCircles(0.1);
 		else
 			drawGrid(null);
 	}

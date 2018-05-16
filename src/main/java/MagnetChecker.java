@@ -1,10 +1,7 @@
 import java.util.List;
 
-// TODO: resume old cell counter
-
 public class MagnetChecker {
   public int getAjacent(List<Integer> scalePointsList, int pressedCoord) {
-    // TODO: test with random-moved crosses
     int lowIndex = 0;
     // if right edge
     if (scalePointsList.get(scalePointsList.size() - 1) <= pressedCoord) {
@@ -30,7 +27,6 @@ public class MagnetChecker {
     int lowDelta = pressedCoord - lowCoord;
     int highDelta = highCoord - pressedCoord;
 
-    // TODO: test with <=
     return lowDelta < highDelta ? lowIndex : lowIndex + 1;
   }
 }

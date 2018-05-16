@@ -47,7 +47,7 @@ import java.util.Vector;
  *
  * @author Kurt De Vos
  */
-public class CellCntrImageCanvas extends ImageCanvas {
+public class CellCntrImageCanvasMorph extends ImageCanvas {
 
 	private Vector<CellCntrMarkerVector> typeVector;
 	private CellCntrMarkerVector currentMarkerVector;
@@ -60,11 +60,11 @@ public class CellCntrImageCanvas extends ImageCanvas {
 
 	private final MagnetChecker magnetChecker = new MagnetChecker();
 
-	/** Creates a new instance of CellCntrImageCanvas */
-	public CellCntrImageCanvas(final ImagePlus img,
+	/** Creates a new instance of CellCntrImageCanvasMorph */
+	public CellCntrImageCanvasMorph(final ImagePlus img,
 		final Vector<CellCntrMarkerVector> typeVector, final CellCounterMorph cc,
-		final Vector<Roi> displayList)
-	{
+		final Vector<Roi> displayList
+	) {
 		super(img);
 		this.img = img;
 		this.typeVector = typeVector;

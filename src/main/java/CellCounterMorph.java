@@ -120,7 +120,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 
 	private boolean keepOriginal = false;
 
-	private CellCntrImageCanvas ic;
+	private CellCntrImageCanvasMorph ic;
 
 	private ImagePlus img;
 	private ImagePlus counterImg;
@@ -507,7 +507,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			@SuppressWarnings("unchecked")
 			final Vector<Roi> displayList =
 				v139t ? img.getCanvas().getDisplayList() : null;
-			ic = new CellCntrImageCanvas(counterImg, typeVector, this, displayList);
+			ic = new CellCntrImageCanvasMorph(counterImg, typeVector, this, displayList);
 			new ImageWindow(counterImg, ic);
 		}
 		else if (img.getStackSize() > 1) {
@@ -533,7 +533,7 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			@SuppressWarnings("unchecked")
 			final Vector<Roi> displayList =
 				v139t ? img.getCanvas().getDisplayList() : null;
-			ic = new CellCntrImageCanvas(counterImg, typeVector, this, displayList);
+			ic = new CellCntrImageCanvasMorph(counterImg, typeVector, this, displayList);
 			new StackWindow(counterImg, ic);
 		}
 		
@@ -640,9 +640,15 @@ public class CellCounterMorph extends JFrame implements ActionListener, ItemList
 			exportMarkers();
 		}
 		else if (command.equals(LOADMARKERS)) {
-			if (ic == null) initializeImage();
-			loadMarkers();
-			validateLayout();
+
+			// TODO: we can load markers, but magnetPointsState will not initialize
+			// so this option is not supported right now
+			IJ.error("Load markers feature is not supported in morphometry plugin right now");
+			return;
+
+//			if (ic == null) initializeImage();
+//			loadMarkers();
+//			validateLayout();
 		}
 		else if (command.equals(EXPORTIMG)) {
 			ic.imageWithMarkers().show();
